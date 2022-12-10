@@ -1,49 +1,20 @@
 let gameScene = new Phaser.Scene("Game");
 
-// some parameters for our scene
 gameScene.init = function () {
   // player parameters
   this.playerSpeed = 3;
-  this.jumpSpeed = -12;
+  this.jumpSpeed = 100;
 
   // enemy parameters
-  this.enemyMinSpeed = 2;
-  this.enemyMaxSpeed = 4.5;
-  this.enemyMinY = 80;
-  this.enemyMaxY = 280;
+  this.enemyMinSpeed = 100;
+  this.enemyMaxSpeed = 100;
+  this.enemyMinY = 200;
+  this.enemyMaxY = 400;
 
   // other parameters
   this.isTerminating = false;
 };
 
-gameScene.create = function () {
-  // game title text
-  let gameTitle = this.add.text(80, 80, "Jumping Ball Game", {
-    font: "40px Arial",
-    fill: "#ffffff",
-  });
-
-  // start button text
-  let startButton = this.add.text(250, 250, "Start", {
-    font: "25px Arial",
-    fill: "#ffffff",
-  });
-
-  // set interactivity
-  startButton.setInteractive();
-
-  // listen for events
-  startButton.on(
-    "pointerdown",
-    function () {
-      // start game
-      this.scene.start("PlayGame");
-    },
-    this
-  );
-};
-
-// load asset files for our game
 gameScene.preload = function () {
   // load images
   this.load.image("background", "./assets/background.png");
@@ -54,22 +25,25 @@ gameScene.preload = function () {
 
 // executed once, after assets were loaded
 gameScene.create = function () {
-  // create bg sprite
   let bg = this.add.sprite(0, 0, "background");
 
   // change origin to the top-left of the sprite
   bg.setOrigin(0, 0);
 
   // create the player
-  this.player = this.add.sprite(40, this.sys.game.config.height / 2, "player");
+  this.player = this.add.sprite(
+    40,
+    this.sys.game.config.height / 1.2,
+    "player"
+  );
 
   // we are reducing the width and height by 50%
   this.player.setScale(0.5);
 
   // goal
   this.treasure = this.add.sprite(
-    this.sys.game.config.width - 80,
-    this.sys.game.config.height / 2,
+    this.sys.game.config.width - 10,
+    this.sys.game.config.height / 1.5,
     "treasure"
   );
   this.treasure.setScale(0.6);
@@ -79,10 +53,10 @@ gameScene.create = function () {
     key: "dragon",
     repeat: 5,
     setXY: {
-      x: 110,
-      y: 100,
+      x: 220,
+      y: 300,
       stepX: 120,
-      stepY: 20,
+      stepY: 30,
     },
   });
 
@@ -93,7 +67,7 @@ gameScene.create = function () {
   Phaser.Actions.Call(
     this.enemies.getChildren(),
     function (enemy) {
-      enemy.speed = Math.random() * 2 + 1;
+      enemy.speed = Math.random() * 4 + 1;
     },
     this
   );
@@ -123,9 +97,31 @@ gameScene.update = function () {
     Phaser.Geom.Intersects.RectangleToRectangle(
       this.player.getBounds(),
       this.treasure.getBounds()
+    ) &&
+    this.add.text(400, 250, "YOU WIN", {
+      fontSize: "48px",
+      fill: "#000",
+    }) &&
+    this.add.text(180, 300, "The Game in 3 seconds", {
+      fontSize: "48px",
+      fill: "#000",
+    }) &&
+    this.time.delayedCall(
+      3000,
+      function () {
+        this.scene.restart();
+      },
+      [],
+      this
     )
   ) {
-    this.gameOver();
+    this.confetti = this.add.particles("confetti").createEmitter({
+      x: 550,
+      y: 250,
+      speed: 200,
+      scale: { start: 0.7, end: 0 },
+      blendMode: "ADD",
+    });
   }
 
   // get enemies
@@ -159,31 +155,28 @@ gameScene.update = function () {
 
 // end the game
 gameScene.gameOver = function () {
-  // flag to set player is dead
   this.isPlayerAlive = false;
 
-  // shake the camera
-  this.cameras.main.shake(500);
+  this.add.text(400, 250, "GAME OVER", {
+    fontSize: "48px",
+    fill: "#000",
+  });
 
-  // fade camera
-  this.time.delayedCall(
-    250,
-    function () {
-      this.cameras.main.fade(250);
-    },
-    [],
-    this
-  );
+  this.add.text(180, 300, "Restarting in 3 seconds", {
+    fontSize: "48px",
+    fill: "#000",
+  });
 
-  // restart game
   this.time.delayedCall(
-    500,
+    3000,
     function () {
       this.scene.restart();
     },
     [],
     this
   );
+
+  this.cameras.main.shake(500);
 };
 
 // start the Phaser game
@@ -196,29 +189,6 @@ let config = {
 
 let game = new Phaser.Game(config);
 
-// set background color
 game.backgroundColor = "#3498db";
 
-// set the physics system
 game.physics.startSystem(Phaser.Physics.ARCADE);
-
-// display game title
-let gameTitle = game.add.text(80, 80, "Jumping Ball Game", {
-  font: "50px Arial",
-  fill: "#ffffff",
-});
-let startButton = game.add.button(
-  game.world.centerX - 95,
-  200,
-  "button",
-  actionOnClick,
-  this,
-  2,
-  1,
-  0
-);
-
-// when the player clicks on the button, we start the 'play' state
-function actionOnClick() {
-  game.state.start("play");
-}
