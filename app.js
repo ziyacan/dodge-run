@@ -93,6 +93,25 @@ gameScene.update = function () {
     this.player.x += this.playerSpeed;
   }
 
+  // player keyboard movement
+  if (this.input.keyboard.addKey("LEFT").isDown) {
+    this.player.x -= this.playerSpeed;
+  } else if (this.input.keyboard.addKey("RIGHT").isDown) {
+    this.player.x += this.playerSpeed;
+  }
+  // else if (this.input.keyboard.addKey("UP").isDown) {
+  //   this.player.y -= this.playerSpeed;
+  // } else if (this.input.keyboard.addKey("DOWN").isDown) {
+  //   this.player.y += this.playerSpeed;
+  // }
+
+  // player is press left then revert player image to left side
+  if (this.input.keyboard.addKey("LEFT").isDown) {
+    this.player.flipX = true;
+  } else if (this.input.keyboard.addKey("RIGHT").isDown) {
+    this.player.flipX = false;
+  }
+
   // treasure collision
   if (
     Phaser.Geom.Intersects.RectangleToRectangle(
