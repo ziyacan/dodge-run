@@ -1,3 +1,4 @@
+// Description: This is the main file for the game
 let gameScene = new Phaser.Scene("Game");
 
 gameScene.init = function () {
