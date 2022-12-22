@@ -138,7 +138,7 @@ gameScene.update = function () {
     this.confetti = this.add.particles("confetti").createEmitter({
       x: 550,
       y: 250,
-      speed: 200,
+      speed: 300,
       scale: { start: 0.7, end: 0 },
       blendMode: "ADD",
     });
